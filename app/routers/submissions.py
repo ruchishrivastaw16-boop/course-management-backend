@@ -96,3 +96,29 @@ def all_submissions(
     _: User = Depends(require_admin),
 ):
     return db.query(Submission).all()
+@admin_router.put("/{submission_id}/grade")
+def admin_grade_submission(
+    submission_id: int,
+    payload: GradeCreate,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin),
+):
+    """Admin: grade/override any submission."""
+    s = db.query(Submission).filter(Submission.id == submission_id).first()
+    if not s:
+        raise HTTPException(404, "Submission not found")
+
+    if payload.grade < 0:
+        raise HTTPException(400, "Grade cannot be negative")
+    if s.assignment.max_score and payload.grade > s.assignment.max_score:
+        raise HTTPException(
+            400, f"Grade cannot exceed {s.assignment.max_score}"
+        )
+
+    s.grade = payload.grade
+    s.feedback = payload.feedback
+    s.status = SubmissionStatus.graded
+    s.graded_at = datetime.utcnow()
+    db.commit()
+    db.refresh(s)
+    return _enrich(s)

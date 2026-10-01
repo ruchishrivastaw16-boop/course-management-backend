@@ -12,7 +12,9 @@ from app.routers import assignments as assignments_module
 from app.routers import submissions as submissions_module
 from app.routers import payments as payments_module
 from app.routers import notifications as notifications_module
-
+from app.routers import upload
+from app.routers import payments as payments_module
+from app.routers import payments as payments_module
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -27,6 +29,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
 )
 
 # ═══════════════════════════════════════════════════════════
@@ -51,8 +54,8 @@ app.include_router(users_module.profile_router)
 app.include_router(enrollments_module.student_router)
 app.include_router(submissions_module.student_router)
 app.include_router(payments_module.student_router)
-app.include_router(notifications_module.user_router)
-
+app.include_router(payments_module.student_router)
+app.include_router(payments_module.student_router)
 # ═══════════════════════════════════════════════════════════
 # 🛡️ ADMIN
 # ═══════════════════════════════════════════════════════════
@@ -63,6 +66,13 @@ app.include_router(assignments_module.admin_router)
 app.include_router(submissions_module.admin_router)
 app.include_router(payments_module.admin_router)
 app.include_router(notifications_module.admin_router)
+app.include_router(upload.router)
+app.include_router(payments_module.admin_router)
+app.include_router(payments_module.admin_router)
+# ═══════════════════════════════════════════════════════════
+# 🔔 NOTIFICATIONS (USER)
+# ═══════════════════════════════════════════════════════════
+app.include_router(notifications_module.router)
 
 
 @app.get("/")
